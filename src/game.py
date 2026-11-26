@@ -5,6 +5,7 @@ Hauptspiel-Klasse mit Game Loop und Wirtschaftssystem.
 import pygame
 from config import Config
 from game_state import GameState
+from economy.trade import buy_good, sell_good
 
 
 class Game:
@@ -37,11 +38,17 @@ class Game:
         # Running-Flag
         self.running = True
         
+        # Nachrichtensystem
+        self.message = ""
+        self.message_timer = 0
+        
         # Städte initialisieren (Schweizer Kontext)
         self._init_cities()
     
     def _init_cities(self):
         """Schweizer Handelsstädte initialisieren."""
+        import random
+        
         cities_data = [
             {"name": "Zürich", "x": 400, "y": 300},
             {"name": "Basel", "x": 200, "y": 150},
@@ -63,11 +70,15 @@ class Game:
             # Güter für diese Stadt initialisieren
             goods = ["Getreide", "Wein", "Käse", "Wolle", "Eisen", "Silber"]
             for good in goods:
-                import random
                 city["supply"][good] = random.randint(50, 200)
                 city["demand"][good] = random.randint(30, 150)
             
             self.game_state.cities.append(city)
+    
+    def set_message(self, msg):
+        """Nachricht anzeigen."""
+        self.message = msg
+        self.message_timer = 180  # 3 Sekunden bei 60 FPS
     
     def run(self):
         """Hauptspiel-Schleife."""
@@ -79,6 +90,15 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
+                    elif event.key == pygame.K_1:
+                        # Handel in Zürich
+                        self._trade_in_city(0)
+                    elif event.key == pygame.K_2:
+                        # Handel in Basel
+                        self._trade_in_city(1)
+                    elif event.key == pygame.K_3:
+                        # Handel in Genf
+                        self._trade_in_city(2)
             
             # Spielzustand aktualisieren
             self.update()
@@ -91,9 +111,38 @@ class Game:
         
         pygame.quit()
     
+    def _trade_in_city(self, city_index):
+        """Handel in einer Stadt durchführen."""
+        if city_index >= len(self.game_state.cities):
+            return
+        
+        city = self.game_state.cities[city_index]
+        
+        # Einfacher Testhandel: Kaufe Getreide, verkaufe es sofort
+        buy_success, buy_msg = buy_good(
+            self.game_state.player, 
+            city, 
+            "Getreide", 
+            10, 
+            5.0
+        )
+        
+        if buy_success:
+            sell_success, sell_msg = sell_good(
+                self.game_state.player,
+                city,
+                "Getreide",
+                10,
+                7.0
+            )
+            
+            if sell_success:
+                self.set_message(f"{buy_msg}\n{sell_msg}")
+    
     def update(self):
         """Spielzustand aktualisieren."""
-        pass
+        if self.message_timer > 0:
+            self.message_timer -= 1
     
     def draw(self):
         """Bildschirm zeichnen."""
@@ -113,8 +162,21 @@ class Game:
         cash_text = info_font.render(f"Geld: {self.game_state.player.cash:.2f} Gulden", True, (200, 200, 200))
         self.screen.blit(cash_text, (20, 130))
         
+        # Inventar anzeigen
+        if self.game_state.player.goods:
+            inv_text = info_font.render(f"Inventar: {self.game_state.player.goods}", True, (200, 200, 200))
+            self.screen.blit(inv_text, (20, 160))
+        
+        # Nachricht anzeigen
+        if self.message_timer > 0:
+            msg_font = pygame.font.Font(None, 20)
+            lines = self.message.split("\n")
+            for i, line in enumerate(lines):
+                msg_text = msg_font.render(line, True, (100, 255, 100))
+                self.screen.blit(msg_text, (20, 200 + i * 25))
+        
         # Städte auf der Karte anzeigen
-        for city in self.game_state.cities:
+        for i, city in enumerate(self.game_state.cities):
             # Stadtmarker zeichnen
             pygame.draw.circle(self.screen, (255, 200, 100), (city["x"], city["y"]), 8)
             
@@ -122,5 +184,15 @@ class Game:
             name_font = pygame.font.Font(None, 18)
             name_text = name_font.render(city["name"], True, (255, 255, 255))
             self.screen.blit(name_text, (city["x"] + 10, city["y"] - 10))
+            
+            # Tastaturkürzel anzeigen
+            key_font = pygame.font.Font(None, 14)
+            key_text = key_font.render(f"[{i+1}]", True, (150, 150, 150))
+            self.screen.blit(key_text, (city["x"] - 15, city["y"] + 10))
+        
+        # Anleitung anzeigen
+        help_font = pygame.font.Font(None, 16)
+        help_text = help_font.render("Drücke 1-3 für Handel in den Städten", True, (150, 150, 150))
+        self.screen.blit(help_text, (20, self.config.screen_height - 30))
         
         pygame.display.flip()
