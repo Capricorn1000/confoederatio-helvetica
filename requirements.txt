@@ -1,0 +1,17 @@
+# Confoederatio Helvetica - Dependencies
+
+# GUI & Graphics
+pygame>=2.5.0
+
+# Image Processing
+Pillow>=10.0.0
+
+# Audio (optional, pygame.mixer is default)
+pydub>=0.25.1
+
+# Data Serialization
+jsonschema>=4.18.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
