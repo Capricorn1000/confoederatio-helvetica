@@ -1,150 +1,147 @@
-# Confoederatio Helvetica - Wirtschaftssimulation
+# Confoederatio Helvetica
 
-Eine Schweizer Wirtschaftssimulation im Renaissance-Stil, inspiriert von historischen Handels- und Bankgeschäften der Eidgenossenschaft.
+Eine Schweizer Wirtschaftssimulation im Renaissance-Stil (1500-1600).
+Basierend auf dem Spielkonzept von Fugger II.
 
-## 🎯 Vision
+## Kapitel-Fortschritt
 
-Der Spieler übernimmt die Rolle eines aufstrebenden Kaufmanns/Bankiers in der Schweizer Konföderation des 15./16. Jahrhunderts. Ziel ist es, durch kluges Handeln, strategische Allianzen und geschickte Manöver ein florierendes Handelsimperium aufzubauen - während historische Ereignisse das Spielgeschehen prägen.
+### ✅ Kapitel 1: Kern-Spiel-Loop & Wirtschaftssystem
+- Handel zwischen Zürich, Basel, Genf, Bern, Luzern
+- Preisschwankungen und Angebot/Nachfrage
+- Warentransport und Gewinne
 
-## 📜 Rote Linie - Entwicklungsplan
+### ✅ Kapitel 2: Spionage & Rechtssystem
+- Spione anstellen und verwalten
+- Beweise sammeln
+- Gerichtsverfahren und Bestechung
 
-### Phase 1: Grundgerüst (Aktuell)
-- [x] Projektstruktur erstellt
-- [x] Dokumentationsdateien angelegt
-- [ ] Hauptmenü mit Pygame implementieren
-- [ ] Spielzustands-Management aufbauen
-- [ ] Speichern/Laden mit SQLite implementieren
+### ✅ Kapitel 3: Militärsystem & Truppenverwaltung
+- Truppentypen: Hellebardiere, Armbrustschützen, Reiter
+- Schlachten und Belagerungen
+- Kantonale Konflikte
 
-### Phase 2: Wirtschaftssystem
-- [ ] Handel zwischen Städten implementieren
-- [ ] Preisberechnung (Angebot/Nachfrage)
-- [ ] Bankwesen & Kreditverwaltung
-- [ ] Auktionssystem
+### ✅ Kapitel 4: Ereignisse & Abenteuer
+- 28 historische Narrative
+- 30 mehrjährige Sub-Plots
+- Zufallsmeldungen "Schicksal"
+- Hilfetipps von erfahrenen Kaufleuten
 
-### Phase 3: Spionage & Recht
-- [ ] Spionagesystem mit Beweissammlung
-- [ ] Gerichtsverhandlungen
-- [ ] Bestechungssystem
-- [ ] Zeugen & Plädoyers
+### ✅ Kapitel 5: Benutzeroberfläche & Spielsteuerung
+- Hauptmenü mit Speichern/Laden
+- Optionen-Menü
+- Ereignis-Anzeigefenster
+- Abenteuer-Auswahlmenü
+- Kartenansicht mit Routen
+- Truppenverwaltung, Spionage-Dashboard, Gerichtsverfahrens-Schnittstelle
 
-### Phase 4: Militär & Kämpfe
-- [ ] Schlachtensystem
-- [ ] Belagerungen
-- [ ] KI-General-Steuerung (ESC-Taste-Funktion)
-- [ ] Eskortierte Transporte
+### ✅ Kapitel 6: Sound, Musik & Grafiken
+- SoundManager mit Pygame.mixer
+- GraphicsManager mit Renaissance-Farbschema
+- Stadt-/Güter-/Truppen-Icons
+- Hintergrundmusik und Soundeffekte
 
-### Phase 5: Ereignisse & Abenteuer
-- [ ] Historische Ereignisse pro Jahr
-- [ ] Sub-Plots/Abenteuer implementieren
-- [ ] Zufallsmeldungen ("Schicksal")
-- [ ] Hilfen von erfahrenen Kaufleuten
+### ✅ Kapitel 7: Mehrspieler & Polish
+- Hotseat-Mehrspieler (2-4 Spieler)
+- Spieler-Einrichtung mit Namen/Farben
+- Sichtbarkeitsregeln
+- Siegbedingungen (Vermögen oder Jahre)
+- Rundenverwaltung
 
-### Phase 6: Mehrspieler & Polish
-- [ ] Rundenbasiertes Mehrspieler-Spiel
-- [ ] Spieler-Ankündigungen
-- [ ] Sound & Musik integrieren
-- [ ] Grafiken optimieren
-- [ ] Bugfixing & Testing
+### ✅ Kapitel 8: Grafiken, Assets & Finaler Polish
+- **Echte Renaissance-Grafiken**: Programmatisch generierte Assets mit Pillow
+  - Detaillierte Stadt-Icons für alle 5 Kantone (gotische Architektur)
+  - Historische Güter-Icons (Getreide-Säcke, Wein-Fässer, Käse-Räder, etc.)
+  - Truppen-Icons in Schweizer Tracht
+  - Titelbildschirm mit dekorativem Renaissance-Rahmen
+  - Pergament-texturierte Kartenhintergründe
+- **Performance-Optimierung**:
+  - LRU-Cache für häufige Berechnungen (Preise, Truppenstärken)
+  - Memoization-Decorator für teure Funktionen
+  - Objekt-Pooling für Ressourcenverwaltung
+  - Optimiert für 50+ Jahre Spielzeit ohne Speicherlecks
+- **Effiziente Serialisierung**:
+  - Gzip-Kompression für große Spielstände
+  - Kompakte JSON-Formatierung
+  - Inkrementelle Speichermöglichkeiten
+- **Umfassende Tests**:
+  - Performance-Tests (Cache, Memoization, Pooling)
+  - Save/Load-Tests mit großen Spielständen
+  - Mehrspieler-Szenario-Tests
+  - Spielbalance-Validierung
+- **Spielbalance-Anpassungen**:
+  - Zentrale Balance-Konfiguration (`src/config/balance.py`)
+  - Kalibrierte Wirtschaftswerte für fairen Mehrspieler-Wettbewerb
+  - Ausgewogene Truppenkosten und -stärken
+  - Optimierte Ereignis-Frequenz
 
-## 🏗️ Architektur
-
-### Technologie-Stack
-- **GUI**: Pygame (spielähnliche Oberfläche mit Sprites und Animationen)
-- **Datenhaltung**: SQLite (Speicherspiele und persistente Daten)
-- **Audio**: pygame.mixer (Soundeffekte und Musik)
-- **Bildverarbeitung**: Pillow (für Bildmanipulation)
-
-### Projektstruktur
-```
-confoederatio-helvetica/
-├── src/                    # Quellcode
-│   ├── economy/            # Wirtschaftssystem (Handel, Bankwesen, Preise)
-│   ├── espionage/          # Spionagesystem
-│   ├── legal/              # Rechtssystem (Gerichte, Bestechung)
-│   ├── military/           # Militärsystem (Schlachten, Belagerungen)
-│   ├── events/             # Ereignisse & Abenteuer
-│   ├── ui/                 # Benutzeroberfläche
-│   └── utils/              # Hilfsfunktionen & Tools
-├── assets/                 # Grafiken, Sounds, Musik
-├── data/                   # Szenarien & Speicherspiele
-├── tests/                  # Unit Tests
-└── docs/                   # Dokumentation
-```
-
-## 📚 Subsystem-Dokumentation
-
-Jedes Subsystem hat eine eigene README.md mit detaillierter Analyse:
-
-- [Wirtschaftssystem](src/economy/README.md) - Handel, Bankwesen, Preise
-- [Spionagesystem](src/espionage/README.md) - Spione & Beweissammlung
-- [Rechtssystem](src/legal/README.md) - Gerichte & Bestechung
-- [Militärsystem](src/military/README.md) - Schlachten & Belagerungen
-- [Ereignisse](src/events/README.md) - Historische Ereignisse & Abenteuer
-- [Benutzeroberfläche](src/ui/README.md) - UI-Komponenten
-- [Hilfsfunktionen](src/utils/README.md) - Tools & Utilities
-
-## 🎮 Spielmerkmale (basierend auf Original-Analyse)
-
-### Wirtschaft
-- Handel zwischen Schweizer Städten und internationalen Handelspartnern
-- Dynamische Preisbildung basierend auf Angebot/Nachfrage
-- Bankwesen mit Krediten, Zinsen und Wechselgeschäften
-- Auktionen für seltene Güter und Kunstwerke
-
-### Spionage & Intrigen
-- Anstellung von Spionen zur Überwachung von Rivalen
-- Sammlung von Beweisen für Gerichtsverfahren
-- Sabotage und Wirtschaftsspionage
-
-### Rechtssystem
-- Gerichtsverhandlungen mit Zeugen und Plädoyers
-- Bestechungsmöglichkeiten (optional ein-/ausschaltbar)
-- Vertragsstreitigkeiten und Eigentumsfragen
-
-### Militär
-- Militärische Feldzüge zur Sicherung von Handelsrouten
-- Belagerungen von Städten
-- Eskortierte Transporte gegen Räuber
-- KI-General übernimmt bei Bedarf die Führung (ESC-Taste)
-
-### Historische Ereignisse
-- Jahr-für-Jahr historische Narrative der Schweizer Geschichte
-- Über 30 Sub-Plots/Abenteuer über mehrere Jahre hinweg
-- Zufallsmeldungen ("Schicksal") für zusätzliche Spannung
-- Hilfreiche Tipps von erfahrenen Kaufleuten
-
-## ⚙️ Konfiguration & Optionen
-
-Das Spiel bietet folgende Einstellmöglichkeiten:
-- Spieldauer bis ins Jahr 1800 erweiterbar
-- Gerichtsbestechung ein-/ausschaltbar
-- Historische Ereignisse ein-/ausschaltbar
-- Abenteuer/Sub-Plots ein-/ausschaltbar
-- Zufallsmeldungen ein-/ausschaltbar
-- Hilfen ein-/ausschaltbar
-- Sound und Grafik-Einstellungen
-
-## 🌍 Schweizer Kontext
-
-Anstatt der deutschen Fugger-Familie spielt das Spiel in der Schweizer Konföderation:
-- Historische Städte: Zürich, Basel, Genf, Bern, Luzern
-- Schweizer Handelsrouten über die Alpen
-- Historische Ereignisse der Schweizer Geschichte
-- Schweizer Banktradition und Wirtschaftsgeschichte
-
-## 🚀 Starten des Spiels
+## Installation
 
 ```bash
-# Abhängigkeiten installieren
 pip install -r requirements.txt
+```
 
-# Spiel starten
+## Asset-Generierung
+
+Alle Grafiken werden programmatisch mit Pillow generiert:
+
+```bash
+python src/assets/generate_assets.py
+```
+
+Dies erstellt:
+- `assets/cities/` - Stadt-Icons für alle 5 Kantone
+- `assets/goods/` - Güter-Icons (6 Typen)
+- `assets/troops/` - Truppen-Icons (3 Typen)
+- `assets/title_screen.png` - Titelbildschirm
+- `assets/map_background.png` - Kartenhintergrund
+
+## Spiel starten
+
+```bash
 python src/main.py
 ```
 
-## 📝 Entwicklungshinweise
+## Tests ausführen
 
-- Alle Texte auf Deutsch (Standardsprache)
-- Code-Kommentare können auf Englisch sein
-- Git Commits auf Englisch mit klaren Beschreibungen
-- Tests für alle kritischen Funktionen schreiben
+```bash
+python -m pytest tests/
+# oder einzelne Testdateien:
+python -m unittest tests.test_performance
+python -m unittest tests.test_save_load
+python -m unittest tests.test_multiplayer
+```
+
+## Projektstruktur
+
+```
+confoederatio-helvetica/
+├── src/
+│   ├── main.py              # Einstiegspunkt
+│   ├── game.py              # Haupt-Spiel-Loop (optimiert)
+│   ├── game_state.py        # Spielzustand
+│   ├── config/              # Konfiguration & Balance-Werte
+│   │   └── balance.py       # Zentrale Spielbalance
+│   ├── economy/             # Wirtschaftssystem
+│   ├── espionage/           # Spionagesystem
+│   ├── events/              # Ereignisse & Abenteuer
+│   ├── legal/               # Rechtssystem
+│   ├── military/            # Militärsystem
+│   ├── ui/                  # Benutzeroberfläche
+│   ├── utils/               # Hilfsprogramme
+│   │   ├── performance.py   # Performance-Optimierung & Caching
+│   │   ├── graphics_manager.py  # Grafikverwaltung
+│   │   └── save_load.py     # Optimiertes Speichern/Laden
+│   └── assets/              # Generierte Grafiken
+│       └── generate_assets.py
+├── tests/                   # Test-Suite
+│   ├── test_performance.py
+│   ├── test_save_load.py
+│   └── test_multiplayer.py
+├── docs/                    # Dokumentation
+├── assets/                  # Generierte Assets (Output)
+└── requirements.txt
+```
+
+## Lizenz
+
+MIT License
