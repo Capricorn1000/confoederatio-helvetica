@@ -1,10 +1,12 @@
 """
 Hauptspiel-Klasse mit Game Loop und Wirtschaftssystem.
+
+Integriert Spionagesystem und Rechtssystem (Kapitel 2).
 """
 
 import pygame
 from config import Config
-from game_state import GameState
+from game_state import GameState, Rival
 from economy.trade import buy_good, sell_good
 
 
@@ -99,6 +101,15 @@ class Game:
                     elif event.key == pygame.K_3:
                         # Handel in Genf
                         self._trade_in_city(2)
+                    elif event.key == pygame.K_s:
+                        # Spion anstellen
+                        self._hire_spy()
+                    elif event.key == pygame.K_a:
+                        # Spionage-Mission starten
+                        self._start_espionage_mission()
+                    elif event.key == pygame.K_l:
+                        # Prozess einreichen
+                        self._file_court_case()
             
             # Spielzustand aktualisieren
             self.update()
@@ -139,6 +150,68 @@ class Game:
             if sell_success:
                 self.set_message(f"{buy_msg}\n{sell_msg}")
     
+    def _hire_spy(self):
+        """Einen Spion anstellen."""
+        from espionage.spies import hire_spy
+        
+        spy, cost = hire_spy(self.game_state.player)
+        
+        if spy:
+            self.set_message(f"Spion {spy.name} (Skill {spy.skill_level}) für {cost} Gulden angestellt.")
+        else:
+            self.set_message(cost)  # Fehlermeldung
+    
+    def _start_espionage_mission(self):
+        """Eine Spionage-Mission starten."""
+        if not self.game_state.player.spies:
+            self.set_message("Keine Spione verfügbar. Stelle zuerst einen Spion an (Taste S).")
+            return
+        
+        if not self.game_state.rivals:
+            self.set_message("Keine Rivalen zum Überwachen.")
+            return
+        
+        # Ersten verfügbaren Spion auf ersten Rivalen ansetzen
+        spy = self.game_state.player.spies[0]
+        rival = self.game_state.rivals[0]
+        
+        spy.assign_target(rival)
+        self.set_message(f"Spion {spy.name} überwacht jetzt {rival.name}.")
+    
+    def _file_court_case(self):
+        """Ein Gerichtsverfahren einreichen."""
+        if not self.game_state.player.spies:
+            self.set_message("Keine Beweise gesammelt. Starte zuerst eine Spionage-Mission.")
+            return
+        
+        # Prüfen ob genug Beweise vorhanden sind
+        total_evidence_value = 0
+        for spy in self.game_state.player.spies:
+            total_evidence_value += spy.get_evidence_value()
+        
+        from espionage.evidence import can_file_lawsuit, get_lawsuit_threshold
+        
+        if not can_file_lawsuit(total_evidence_value):
+            threshold = get_lawsuit_threshold()
+            self.set_message(f"Nicht genug Beweise für einen Prozess. Benötigt {threshold} Punkte, hat {total_evidence_value}.")
+            return
+        
+        # Prozess gegen ersten Rivalen einreichen
+        rival = self.game_state.rivals[0]
+        
+        court_case = self.game_state.file_court_case(
+            self.game_state.player,
+            rival,
+            "trade_dispute"
+        )
+        
+        # Beweise dem Fall hinzufügen
+        for spy in self.game_state.player.spies:
+            for evidence in spy.evidence_collected:
+                court_case.add_evidence("plaintiff", evidence)
+        
+        self.set_message(f"Prozess gegen {rival.name} eingereicht (Fall #{court_case.id}).")
+    
     def update(self):
         """Spielzustand aktualisieren."""
         if self.message_timer > 0:
@@ -162,10 +235,22 @@ class Game:
         cash_text = info_font.render(f"Geld: {self.game_state.player.cash:.2f} Gulden", True, (200, 200, 200))
         self.screen.blit(cash_text, (20, 130))
         
+        # Spione anzeigen
+        if self.game_state.player.spies:
+            spy_count = len(self.game_state.player.spies)
+            spy_text = info_font.render(f"Spione: {spy_count}", True, (200, 200, 200))
+            self.screen.blit(spy_text, (20, 160))
+        
+        # Gerichtsverfahren anzeigen
+        if self.game_state.active_court_cases:
+            case_count = len(self.game_state.active_court_cases)
+            case_text = info_font.render(f"Gerichtsverfahren: {case_count}", True, (255, 200, 100))
+            self.screen.blit(case_text, (20, 190))
+        
         # Inventar anzeigen
         if self.game_state.player.goods:
             inv_text = info_font.render(f"Inventar: {self.game_state.player.goods}", True, (200, 200, 200))
-            self.screen.blit(inv_text, (20, 160))
+            self.screen.blit(inv_text, (20, 220))
         
         # Nachricht anzeigen
         if self.message_timer > 0:
@@ -173,7 +258,7 @@ class Game:
             lines = self.message.split("\n")
             for i, line in enumerate(lines):
                 msg_text = msg_font.render(line, True, (100, 255, 100))
-                self.screen.blit(msg_text, (20, 200 + i * 25))
+                self.screen.blit(msg_text, (20, 260 + i * 25))
         
         # Städte auf der Karte anzeigen
         for i, city in enumerate(self.game_state.cities):
@@ -192,7 +277,14 @@ class Game:
         
         # Anleitung anzeigen
         help_font = pygame.font.Font(None, 16)
-        help_text = help_font.render("Drücke 1-3 für Handel in den Städten", True, (150, 150, 150))
-        self.screen.blit(help_text, (20, self.config.screen_height - 30))
+        help_lines = [
+            "Drücke 1-3 für Handel in den Städten",
+            "S: Spion anstellen | A: Spionage-Mission starten",
+            "L: Prozess einreichen (bei ausreichender Beweislage)"
+        ]
+        
+        for i, line in enumerate(help_lines):
+            help_text = help_font.render(line, True, (150, 150, 150))
+            self.screen.blit(help_text, (20, self.config.screen_height - 60 + i * 20))
         
         pygame.display.flip()
